@@ -1,10 +1,11 @@
 import subprocess
-from typing import Optional
+from typing import Any, Dict, Optional
 
 
 def extract_audio_from_video(input_file_path: str, output_file_path: str,
                              start_time: Optional[str] = None, stop_time: Optional[str] = None):
     input_args = [
+        'ffmpeg',
         '-v', 'error',
         '-nostdin',
         '-y'  # to overwrite the output file
@@ -21,16 +22,21 @@ def extract_audio_from_video(input_file_path: str, output_file_path: str,
         output_args.extend(['-to', stop_time])
     output_args.append(output_file_path)
 
-    proc = subprocess.run(
-        ['ffmpeg', ] + input_args + output_args,
-        universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+    proc = subprocess.run(input_args + output_args, **_get_common_proc_run_args())
     if proc.stderr:
         raise Exception(f'There is error in calling ffmpeg: {proc.stderr}')
+
+
+def _get_common_proc_run_args() -> Dict[str, Any]:
+    return dict(universal_newlines=True,
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                check=True)
 
 
 def extract_audio_segment(input_file_path: str, output_file_path: str,
                           start_time: Optional[str] = None, stop_time: Optional[str] = None):
     input_args = [
+        'ffmpeg',
         '-v', 'error',
         '-nostdin',
         '-y'  # to overwrite the output file
@@ -46,8 +52,6 @@ def extract_audio_segment(input_file_path: str, output_file_path: str,
         output_args.extend(['-to', stop_time])
     output_args.append(output_file_path)
 
-    proc = subprocess.run(
-        ['ffmpeg', ] + input_args + output_args,
-        universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+    proc = subprocess.run(input_args + output_args, **_get_common_proc_run_args())
     if proc.stderr:
         raise Exception(f'There is error in calling ffmpeg: {proc.stderr}')
