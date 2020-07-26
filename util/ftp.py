@@ -1,5 +1,5 @@
+from util.config import config
 from ftplib import FTP
-from typing import Optional
 
 
 # ftp.cwd('10-大堂錄影'.encode('big5').decode('latin'))
@@ -10,12 +10,19 @@ from typing import Optional
 # '10-大堂錄影'
 
 
-def get_file(host: str, file_path: str, encoding: Optional[str] = None,
-             username: Optional[str] = None, password: Optional[str] = None):
-    pass
+FTP_HOST = config.get_value('ftp', 'host')
+FTP_USER = config.get_value('ftp', 'username')
+FTP_PASS = config.get_value('ftp', 'password')
+FTP_SRC_DIR = config.get_value('ftp', 'src_dir')
+FTP_ENCODING = config.get_value('ftp', 'encoding')
 
 
-def _get_ftp_conn(host: str, username: Optional[str] = None, password: Optional[str] = None) -> FTP:
-    ftp = FTP(host)
-    ftp.login(user=username, passwd=password)
-    return ftp
+class FTPConn:
+
+    def __init__(self):
+        self.ftp = FTP(FTP_HOST)
+        self.ftp.login(user=FTP_USER, passwd=FTP_PASS)
+        self.ftp.cwd(FTP_SRC_DIR.encode(FTP_ENCODING).decode('latin'))
+
+    def get_file_list(self):
+        return list(self.ftp.mlsd())
