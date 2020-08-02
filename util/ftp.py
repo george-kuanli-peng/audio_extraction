@@ -1,5 +1,8 @@
-from util.config import config
+import os
+from datetime import datetime
 from ftplib import FTP
+
+from util.config import config
 
 
 # ftp.cwd('10-大堂錄影'.encode('big5').decode('latin'))
@@ -26,3 +29,24 @@ class FTPConn:
 
     def get_file_list(self):
         return list(self.ftp.mlsd())
+
+    def get_latest_rec_file_name(self) -> str:
+        cur_latest_rec_time = datetime(2000, 1, 1, 0, 0, 0)
+        cur_latest_rec_file_name = None
+        for f_info in reversed(self.get_file_list()):
+            file_name = f_info[0]
+            try:
+                file_time = datetime.strptime(file_name, '%Y-%m-%d %H-%M-%S.mkv')
+                if file_time > cur_latest_rec_time:
+                    cur_latest_rec_time = file_time
+                    cur_latest_rec_file_name = file_name
+            except ValueError:
+                pass
+        if not cur_latest_rec_file_name:
+            raise ValueError('Recording file not found')
+        return cur_latest_rec_file_name
+
+    def download_file(self, file_name: str, dst_dir: str):
+        dst_file_path = os.path.join(dst_dir, file_name)
+        with open(dst_file_path, 'wb') as f_store:
+            self.ftp.retrbinary('RETR ' + file_name, f_store.write)
