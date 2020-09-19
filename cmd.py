@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import os
 
 from util.config import config
@@ -24,7 +25,8 @@ def main():
                              os.path.join(WORK_DIR, orig_audio_file_name))
     LOGGER.info(f'Converting audio to {conv_audio_file_name}...')
     extract_audio_segment(os.path.join(WORK_DIR, orig_audio_file_name),
-                          os.path.join(WORK_DIR, conv_audio_file_name))
+                          os.path.join(WORK_DIR, conv_audio_file_name),
+                          output_encoder='libmp3lame')
 
 
 if __name__ == '__main__':

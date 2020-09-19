@@ -34,6 +34,7 @@ def _get_common_proc_run_args() -> Dict[str, Any]:
 
 
 def extract_audio_segment(input_file_path: str, output_file_path: str,
+                          output_encoder: Optional[str] = None,
                           start_time: Optional[str] = None, stop_time: Optional[str] = None):
     input_args = [
         'ffmpeg',
@@ -46,7 +47,7 @@ def extract_audio_segment(input_file_path: str, output_file_path: str,
     input_args.extend(['-i', input_file_path])
 
     output_args = [
-        '-c', 'copy'
+        '-c:a', output_encoder if output_encoder else 'copy'
     ]
     if stop_time:
         output_args.extend(['-to', stop_time])

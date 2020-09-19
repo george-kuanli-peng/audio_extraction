@@ -55,16 +55,18 @@ class FTPConn:
     def download_file(self, file_name: str, dst_dir: str):
         dst_file_path = os.path.join(dst_dir, file_name)
         with open(dst_file_path, 'wb') as f_store:
-            LOGGER.info(f'"{file_name}" download started, total {int(self.ftp.size(file_name)/1024):,} KBytes')
-            downloader = FileDownloader(f_store)
+            total_bytes = self.ftp.size(file_name)
+            LOGGER.info(f'"{file_name}" download started, total {int(total_bytes/1024):,} KBytes')
+            downloader = FileDownloader(f_store, total_bytes)
             self.ftp.retrbinary('RETR ' + file_name, downloader.retr)
             LOGGER.info(f'"{file_name}" download completed')
 
 
 class FileDownloader:
 
-    def __init__(self, fp: IO):
+    def __init__(self, fp: IO, total_bytes: int):
         self.fp = fp
+        self.total_bytes = total_bytes
         self.cur_bytes = 0
         self.log_cnt = 0
         self.log_interval = timedelta(seconds=10)
@@ -78,5 +80,7 @@ class FileDownloader:
         if self.log_cnt % 20 == 0:
             cur_time = datetime.now()
             if cur_time - self.last_log_time >= self.log_interval:
-                LOGGER.info(f'Total {int(self.cur_bytes/1024):,} KBytes downloaded')
+                cur_kbytes = int(self.cur_bytes/1024)
+                cur_percent = self.cur_bytes / self.total_bytes * 100
+                LOGGER.info(f'Total {cur_kbytes:,} KBytes ({cur_percent:.2f}%) downloaded')
                 self.last_log_time = cur_time
