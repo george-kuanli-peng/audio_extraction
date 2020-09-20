@@ -41,7 +41,11 @@ def main():
         add_completed_raw_audio_file(orig_audio_file_name)
 
     LOGGER.info(f'Converting audio to {conv_audio_file_name}...')
-    extract_audio_segment(orig_audio_file_path, conv_audio_file_path, output_encoder='libmp3lame')
+    # TODO: 處理指定時間超過檔案範圍的狀況
+    # https://trac.ffmpeg.org/wiki/FFprobeTips
+    extract_audio_segment(orig_audio_file_path, conv_audio_file_path, output_encoder='libmp3lame',
+                          start_time=config.get_value('audio_video', 'default_clip_start'),
+                          stop_time=config.get_value('audio_video', 'default_clip_end'))
     add_completed_final_audio_file(conv_audio_file_name)
 
 
