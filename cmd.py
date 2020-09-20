@@ -48,6 +48,8 @@ def main():
                           stop_time=config.get_value('audio_video', 'default_clip_end'))
     add_completed_final_audio_file(conv_audio_file_name)
 
+    ftp_conn.upload_file(conv_audio_file_name, WORK_DIR)
+
 
 if __name__ == '__main__':
     main()

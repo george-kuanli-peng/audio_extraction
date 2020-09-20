@@ -23,6 +23,7 @@ FTP_HOST = config.get_value('ftp', 'host')
 FTP_USER = config.get_value('ftp', 'username')
 FTP_PASS = config.get_value('ftp', 'password')
 FTP_SRC_DIR = config.get_value('ftp', 'src_dir')
+FTP_DST_DIR = config.get_value('ftp', 'dst_dir')
 FTP_ENCODING = config.get_value('ftp', 'encoding')
 
 
@@ -31,9 +32,9 @@ class FTPConn:
     def __init__(self):
         self.ftp = FTP(FTP_HOST)
         self.ftp.login(user=FTP_USER, passwd=FTP_PASS)
-        self.ftp.cwd(FTP_SRC_DIR.encode(FTP_ENCODING).decode('latin'))
 
     def get_file_list(self):
+        self.ftp.cwd('/' + FTP_SRC_DIR.encode(FTP_ENCODING).decode('latin'))
         return list(self.ftp.mlsd())
 
     def get_latest_rec_file_name(self) -> str:
@@ -55,11 +56,20 @@ class FTPConn:
     def download_file(self, file_name: str, dst_dir: str):
         dst_file_path = os.path.join(dst_dir, file_name)
         with open(dst_file_path, 'wb') as f_store:
+            self.ftp.cwd('/' + FTP_SRC_DIR.encode(FTP_ENCODING).decode('latin'))
             total_bytes = self.ftp.size(file_name)
             LOGGER.info(f'"{file_name}" download started, total {int(total_bytes/1024):,} KBytes')
             downloader = FileDownloader(f_store, total_bytes)
             self.ftp.retrbinary('RETR ' + file_name, downloader.retr)
             LOGGER.info(f'"{file_name}" download completed')
+
+    def upload_file(self, file_name: str, local_dir: str):
+        src_file_path = os.path.join(local_dir, file_name)
+        with open(src_file_path, 'rb') as fd:
+            self.ftp.cwd('/' + FTP_DST_DIR.encode(FTP_ENCODING).decode('latin'))
+            LOGGER.info(f'"{file_name}" upload started')
+            self.ftp.storbinary('STOR ' + file_name, fd)
+            LOGGER.info(f'"{file_name}" upload completed')
 
 
 class FileDownloader:
