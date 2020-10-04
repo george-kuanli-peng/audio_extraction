@@ -8,6 +8,7 @@ _WORK_DIR = config.get_value('audio_video', 'work_dir')
 _CMPL_VIDEOS_DB_PATH = os.path.join(os.path.dirname(__file__), '..', _WORK_DIR, 'videos.txt')
 _CMPL_RAW_AUDIOS_DB_PATH = os.path.join(os.path.dirname(__file__), '..', _WORK_DIR, 'raw_audios.txt')
 _CMPL_FINAL_AUDIOS_DB_PATH = os.path.join(os.path.dirname(__file__), '..', _WORK_DIR, 'final_audios.txt')
+_CMPL_UPLOADED_AUDIOS_DB_PATH = os.path.join(os.path.dirname(__file__), '..', _WORK_DIR, 'uploaded_audios.txt')
 
 
 def _get_local_db_recs(db_file_path: str) -> List[str]:
@@ -45,3 +46,11 @@ def get_completed_final_audio_files() -> List[str]:
 
 def add_completed_final_audio_file(file_name: str):
     _add_local_db_rec(_CMPL_FINAL_AUDIOS_DB_PATH, file_name)
+
+
+def get_completed_uploaded_final_audio_files() -> List[str]:
+    return _get_local_db_recs(_CMPL_UPLOADED_AUDIOS_DB_PATH)
+
+
+def add_completed_uploaded_final_audio_file(file_name: str):
+    _add_local_db_rec(_CMPL_UPLOADED_AUDIOS_DB_PATH, file_name)
