@@ -24,3 +24,5 @@ It contains tools for converting video clips to audio files and for extracting a
      ```
      ./cmd.py
      ```
+   - To specify a certain recording date (rather than a latest recording date),
+     add the `--rec_date=YYYY-MM-DD` option (E.g., `--rec_date=2020-11-07`)

@@ -1,6 +1,9 @@
 #!/usr/bin/env python
+import argparse
+import datetime
 import os
 from contextlib import suppress
+from typing import Optional
 
 from util.config import config
 from util.db import get_completed_video_files, get_completed_raw_audio_files, get_completed_final_audio_files, \
@@ -14,10 +17,21 @@ LOGGER = logging.getLogger(__name__)
 WORK_DIR = config.get_value('audio_video', 'work_dir')
 
 
-def main():
+def init_arg_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser();
+    parser.add_argument('--rec_date', type=lambda s: datetime.datetime.strptime(s, '%Y-%m-%d').date(),
+                        help='specify certain recording date in the YYYY-MM-DD format, such as 2020-11-07; '
+                             'by default, a latest recording date is selected')
+    return parser
+
+
+def main(rec_date: Optional[datetime.date] = None):
     ftp_conn = FTPConn()
-    rec_file_name = ftp_conn.get_latest_rec_file_name()
-    LOGGER.info(f'Found latest recording file: {rec_file_name}')
+    if rec_date:
+        rec_file_name = ftp_conn.get_rec_file_name_for_date(rec_date)
+    else:
+        rec_file_name = ftp_conn.get_latest_rec_file_name()
+    LOGGER.info(f'Found recording file: {rec_file_name}')
 
     rec_main_file_name = rec_file_name.rsplit(maxsplit=1)[0]
     orig_audio_file_name = rec_main_file_name + '.aac'
@@ -73,4 +87,6 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    parser = init_arg_parser()
+    args = parser.parse_args()
+    main(rec_date=args.rec_date)

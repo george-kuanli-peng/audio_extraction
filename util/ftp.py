@@ -1,6 +1,6 @@
 import logging
 import os
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from ftplib import FTP
 from typing import IO
 
@@ -52,6 +52,19 @@ class FTPConn:
         if not cur_latest_rec_file_name:
             raise ValueError('Recording file not found')
         return cur_latest_rec_file_name
+
+    def get_rec_file_name_for_date(self, rec_date: date) -> str:
+        # LOGGER.warning(f'rec_date={rec_date}')
+        for f_info in reversed(self.get_file_list()):
+            file_name = f_info[0]
+            try:
+                file_time = datetime.strptime(file_name, '%Y-%m-%d %H-%M-%S.mkv')
+                # LOGGER.warning(f'file_name={file_name}, file_time={file_time.date()}')
+                if file_time.date() == rec_date:
+                    return file_name
+            except ValueError:
+                pass
+        raise ValueError('Recording file not found')
 
     def download_file(self, file_name: str, dst_dir: str):
         dst_file_path = os.path.join(dst_dir, file_name)
